@@ -1,4 +1,3 @@
-import re
 from io import StringIO
 
 import buildstats
@@ -16,7 +15,7 @@ def test_filter_gradle_builds():
 
     assert list(builds) == [
         Build(when="2021-07-14 15:20:21,542", time_taken="16 m 5 s 163 ms ", outcome="finished",
-              tasks=[":assemble", ":testClasses"])]
+              tasks=":assemble, :testClasses")]
 
 
 def test_build_matcher():
@@ -67,7 +66,7 @@ def test_filter_clean_builds():
     builds = filter_gradle_builds(StringIO(text))
 
     assert list(builds) == [
-        Build(when="2021-07-14 16:50:59,667", time_taken="214 ms ", outcome="finished", tasks=["clean"])]
+        Build(when="2021-07-14 16:50:59,667", time_taken="214 ms ", outcome="finished", tasks="clean")]
 
 
 def test_task_list():
@@ -77,5 +76,5 @@ def test_task_list():
 
 
 def test_parse():
-    assert Build(when="2021-07-14 16:50:59,667", time_taken="214 ms ", outcome="finished", tasks=["clean"]) == eval(
-        """Build(when="2021-07-14 16:50:59,667", time_taken="214 ms ", outcome="finished", tasks=["clean"])""")
+    assert Build(when="2021-07-14 16:50:59,667", time_taken="214 ms ", outcome="finished", tasks="clean") == eval(
+        """Build(when="2021-07-14 16:50:59,667", time_taken="214 ms ", outcome="finished", tasks="clean")""")

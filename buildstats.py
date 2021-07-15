@@ -8,10 +8,11 @@ from pathlib import Path
 
 @dataclass
 class Build:
+    """Contains the raw data from the log parsed into string fields, no further processing"""
     when: str
     time_taken: str
     outcome: str
-    tasks: list = field(default_factory=list)
+    tasks: str
 
 
 @dataclass
@@ -48,7 +49,7 @@ def next_build(matches):
             when = match.group(1)
             outcome = match.group(2)
             time_taken = match.group(3)
-            yield Build(when=when, outcome=outcome, time_taken=time_taken, tasks=task_list(tasks))
+            yield Build(when=when, outcome=outcome, time_taken=time_taken, tasks=tasks)
             tasks = "" # reset tasks in case we get another build before another tasks
 
 
