@@ -22,7 +22,7 @@ class NamedRegex:
 
 
 GRADLE_BUILD_RE = re.compile(r"^([\d\-:,\s]+) \[\d+\].* Gradle build (\w+) in ([\d\s\w]+)\n$")
-GRADLE_TASKS_RE = re.compile(r"^.* About to execute Gradle tasks: \[([\w\s,:]+)\].*$")
+GRADLE_TASKS_RE = re.compile(r"^.* About to execute Gradle tasks: \[([\w\s,:-]+)\].*$")
 
 
 def next_match(lines, regexes):

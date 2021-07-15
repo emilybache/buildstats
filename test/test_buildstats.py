@@ -33,9 +33,9 @@ def test_task_matcher():
 
 
 def test_task_matcher_multiple_tasks():
-    line = "2021-07-14 16:50:59,433 [6804663]   INFO - ild.invoker.GradleBuildInvoker - About to execute Gradle tasks: [:assemble, :testClasses]\n"
+    line = "2021-07-14 16:50:59,433 [6804663]   INFO - ild.invoker.GradleBuildInvoker - About to execute Gradle tasks: [:assemble-xyz, :testClasses]\n"
     matches = buildstats.GRADLE_TASKS_RE.match(line)
-    assert matches.group(1) == ":assemble, :testClasses"
+    assert matches.group(1) == ":assemble-xyz, :testClasses"
 
 
 def test_next_match():
