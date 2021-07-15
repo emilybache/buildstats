@@ -10,34 +10,49 @@ def test_filter_gradle_builds():
 2021-07-14 15:04:16,263 [ 401493]   INFO - ild.invoker.GradleBuildInvoker - About to execute Gradle tasks: [:assemble, :testClasses] 
 2021-07-14 15:08:52,831 [ 678061]   INFO - g.FileBasedIndexProjectHandler - Reindexing refreshed files: 0 to update, calculated in 0ms 
 2021-07-14 15:20:21,542 [1366772]   INFO - ild.invoker.GradleBuildInvoker - Gradle build finished in 16 m 5 s 163 ms 
-	at com.intellij.openapi.application.impl.ApplicationImpl.runIntendedWriteActionOnCurrentThread(ApplicationImpl.java:808)
+    at com.intellij.openapi.application.impl.ApplicationImpl.runIntendedWriteActionOnCurrentThread(ApplicationImpl.java:808)
 """
     builds = filter_gradle_builds(StringIO(text))
 
     assert list(builds) == [
-        Build(when="2021-07-14 15:20:21,542", time_taken="16 m 5 s 163 ms ", outcome="finished", tasks="")]
+        Build(when="2021-07-14 15:20:21,542", time_taken="16 m 5 s 163 ms ", outcome="finished",
+              tasks=[":assemble", ":testClasses"])]
+
 
 def test_build_matcher():
     line = "2021-07-14 15:20:21,542 [1366772]   INFO - ild.invoker.GradleBuildInvoker - Gradle build finished in 16 m 5 s 163 ms\n"
-    regex = re.compile(buildstats.gradle_build_pattern)
-    matches = regex.match(line)
+    matches = buildstats.GRADLE_BUILD_RE.match(line)
     assert matches.group(1) == "2021-07-14 15:20:21,542"
     assert matches.group(2) == "finished"
     assert matches.group(3) == "16 m 5 s 163 ms"
 
+
 def test_task_matcher():
     line = "2021-07-14 16:50:59,433 [6804663]   INFO - ild.invoker.GradleBuildInvoker - About to execute Gradle tasks: [clean]\n"
-    regex = re.compile(buildstats.gradle_task_pattern)
-    matches = regex.match(line)
+    matches = buildstats.GRADLE_TASKS_RE.match(line)
     assert matches.group(1) == "clean"
+
 
 def test_task_matcher_multiple_tasks():
     line = "2021-07-14 16:50:59,433 [6804663]   INFO - ild.invoker.GradleBuildInvoker - About to execute Gradle tasks: [:assemble, :testClasses]\n"
-    regex = re.compile(buildstats.gradle_task_pattern)
-    matches = regex.match(line)
+    matches = buildstats.GRADLE_TASKS_RE.match(line)
     assert matches.group(1) == ":assemble, :testClasses"
 
-def hid_test_filter_clean_builds():
+
+def test_next_match():
+    text = """\
+2021-07-14 16:50:59,433 [6804663]   INFO - ild.invoker.GradleBuildInvoker - About to execute Gradle tasks: [clean] 
+2021-07-14 16:50:59,667 [6804897]   INFO - ild.invoker.GradleBuildInvoker - Gradle build finished in 214 ms
+"""
+    matches = buildstats.next_match(StringIO(text),
+                                    [buildstats.NamedRegex(buildstats.GRADLE_BUILD_RE, "build"),
+                                     buildstats.NamedRegex(buildstats.GRADLE_TASKS_RE, "tasks")]
+                                    )
+    assert matches.__next__()[0] == "tasks"
+    assert matches.__next__()[0] == "build"
+
+
+def test_filter_clean_builds():
     text = """\
 2021-07-14 16:50:59,433 [6804663]   INFO - ild.invoker.GradleBuildInvoker - About to execute Gradle tasks: [clean] 
 2021-07-14 16:50:59,439 [6804669]   INFO - ild.invoker.GradleBuildInvoker - About to execute Gradle tasks: [clean] 
@@ -52,4 +67,14 @@ def hid_test_filter_clean_builds():
     builds = filter_gradle_builds(StringIO(text))
 
     assert list(builds) == [
-        Build(when="2021-07-14 16:50:59,667", time_taken="214 ms ", outcome="finished", tasks="[clean]")]
+        Build(when="2021-07-14 16:50:59,667", time_taken="214 ms ", outcome="finished", tasks=["clean"])]
+
+
+def test_task_list():
+    assert buildstats.task_list("clean") == ["clean"]
+    assert buildstats.task_list((":assemble, :testClasses")) == [":assemble", ":testClasses"]
+
+
+def test_parse():
+    assert Build(when="2021-07-14 16:50:59,667", time_taken="214 ms ", outcome="finished", tasks=["clean"]) == eval(
+        """Build(when="2021-07-14 16:50:59,667", time_taken="214 ms ", outcome="finished", tasks=["clean"])""")
