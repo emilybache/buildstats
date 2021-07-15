@@ -65,8 +65,25 @@ def main(log_file):
             print(build)
 
 
+def guess_path_to_idea_log():
+    possible_paths = [
+        Path.home() / "Library/Logs/Google/AndroidStudio4.2/idea.log",
+        Path.home() / "Library/Logs/Google/AndroidStudio4.1/idea.log",
+    ]
+    for p in possible_paths:
+        if p.exists():
+            return p
+    return None
+
+
 if __name__ == '__main__':
-    path = Path.home() / "Library/Logs/Google/AndroidStudio4.2/idea.log"
+    path = None
     if len(sys.argv) > 1:
         path = sys.argv[1]
-    main(path)
+    else:
+        path = guess_path_to_idea_log()
+    if not path:
+        print("unable to locate 'idea.log'! You can find it in your JetBrains IDE on the 'help' menu - 'Show log in Finder'. You should give the full path to idea.log as an argument to this script.")
+        sys.exit(1)
+    else:
+        main(path)
