@@ -33,7 +33,10 @@ def next_match(lines, regexes):
 
 
 def task_list(tasks):
-    return tasks.split(", ")
+    tasks = tasks.split(", ")
+    if tasks == [""]:
+        return []
+    return tasks
 
 
 def next_build(matches):

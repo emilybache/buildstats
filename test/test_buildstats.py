@@ -72,6 +72,7 @@ def test_filter_clean_builds():
 
 def test_task_list():
     assert buildstats.task_list("clean") == ["clean"]
+    assert buildstats.task_list("") == []
     assert buildstats.task_list((":assemble, :testClasses")) == [":assemble", ":testClasses"]
 
 
