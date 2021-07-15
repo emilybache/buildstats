@@ -72,9 +72,9 @@ def parse_builds(idea_log, output):
         output.write(f"{build}\n")
 
 
-def main(log_file):
+def main(log_file, output_filename):
     with open(log_file) as f:
-        with open(output_filename(), "w") as output_file:
+        with open(output_filename, "w") as output_file:
             parse_builds(f, output_file)
 
 
@@ -98,4 +98,6 @@ if __name__ == '__main__':
         print("unable to locate 'idea.log'! You can find it in your JetBrains IDE on the 'help' menu - 'Show log in Finder'. You should give the full path to idea.log as an argument to this script.")
         sys.exit(1)
     else:
-        main(path)
+        output = output_filename()
+        print(f"Will parse log file {path} and write builds to {output}")
+        main(path, output)
