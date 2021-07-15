@@ -1,7 +1,8 @@
+import datetime
 from io import StringIO
 
 import buildstats
-from buildstats import filter_gradle_builds, Build
+from buildstats import filter_gradle_builds, Build, output_filename
 
 
 def test_filter_gradle_builds():
@@ -77,3 +78,19 @@ def test_task_list():
 def test_parse():
     assert Build(when="2021-07-14 16:50:59,667", time_taken="214 ms ", outcome="finished", tasks="clean") == eval(
         """Build(when="2021-07-14 16:50:59,667", time_taken="214 ms ", outcome="finished", tasks="clean")""")
+
+
+def test_filename():
+    d = datetime.date(2021, 7, 15)
+    assert "2021-07-15-emily.log" == output_filename(user="emily", date=d)
+
+
+def test_output_to_file():
+    text = """\
+2021-07-14 15:08:52,831 [ 678061]   INFO - g.FileBasedIndexProjectHandler - Reindexing refreshed files: 0 to update, calculated in 0ms 
+2021-07-14 15:20:21,542 [1366772]   INFO - ild.invoker.GradleBuildInvoker - Gradle build finished in 16 m 5 s 163 ms 
+        at com.intellij.openapi.application.impl.ApplicationImpl.runIntendedWriteActionOnCurrentThread(ApplicationImpl.java:808)
+    """
+    output = StringIO()
+    buildstats.parse_builds(StringIO(text), output)
+    assert output.getvalue() == f"""{Build(when="2021-07-14 15:20:21,542", time_taken="16 m 5 s 163 ms ", outcome="finished", tasks="")}\n"""

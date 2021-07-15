@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import datetime
+import os
 import re
 import sys
 from dataclasses import dataclass, field
@@ -59,10 +61,21 @@ def filter_gradle_builds(lines):
     return builds
 
 
+def output_filename(user=None, date=None):
+    user = user or os.getlogin()
+    date = date or datetime.date.today()
+    return f"{date.isoformat()}-{user}.log"
+
+
+def parse_builds(idea_log, output):
+    for build in filter_gradle_builds(idea_log):
+        output.write(f"{build}\n")
+
+
 def main(log_file):
     with open(log_file) as f:
-        for build in filter_gradle_builds(f):
-            print(build)
+        with open(output_filename(), "w") as output_file:
+            parse_builds(f, output_file)
 
 
 def guess_path_to_idea_log():
@@ -77,7 +90,6 @@ def guess_path_to_idea_log():
 
 
 if __name__ == '__main__':
-    path = None
     if len(sys.argv) > 1:
         path = sys.argv[1]
     else:
