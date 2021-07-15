@@ -14,14 +14,39 @@ class Build:
     tasks: str
 
 
+@dataclass
+class Matcher:
+    regex: re.Pattern
+    name: str
+
+
+gradle_build_pattern = r"^([\d\-:,\s]+) \[\d+\].* Gradle build (\w+) in ([\d\s\w]+)\n$"
+gradle_task_pattern = r"^.* About to execute Gradle tasks: \[([\w\s,:]+)\].*$"
+
+
+def next_match(lines, regexes):
+    for line in lines:
+        regex = regexes[0].regex
+        match = regex.match(line)
+        if match:
+            yield regexes[0].name, match
+
+
+def next_build(matches):
+    for name, match in matches:
+        if name == "build":
+            when = match.group(1)
+            outcome = match.group(2)
+            time_taken = match.group(3)
+            yield Build(when=when, outcome=outcome, time_taken=time_taken, tasks="")
+
+
 def filter_gradle_builds(lines):
-    gradle_build_pattern = r"^([\d\-:,\s]+) \[\d+\].* Gradle build (\w+) in ([\d\s\w]+)\n$"
     regex = re.compile(gradle_build_pattern)
 
-    matches = (regex.match(line) for line in lines)
-    return (Build(when=match.group(1), outcome=match.group(2), time_taken=match.group(3), tasks="")
-                for match in matches if match)
-
+    matches = next_match(lines, [Matcher(regex, "build")])
+    builds = (build for build in next_build(matches))
+    return builds
 
 
 def main(log_file):

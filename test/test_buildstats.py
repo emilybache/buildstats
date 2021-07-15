@@ -1,5 +1,7 @@
+import re
 from io import StringIO
 
+import buildstats
 from buildstats import filter_gradle_builds, Build
 
 
@@ -15,6 +17,25 @@ def test_filter_gradle_builds():
     assert list(builds) == [
         Build(when="2021-07-14 15:20:21,542", time_taken="16 m 5 s 163 ms ", outcome="finished", tasks="")]
 
+def test_build_matcher():
+    line = "2021-07-14 15:20:21,542 [1366772]   INFO - ild.invoker.GradleBuildInvoker - Gradle build finished in 16 m 5 s 163 ms\n"
+    regex = re.compile(buildstats.gradle_build_pattern)
+    matches = regex.match(line)
+    assert matches.group(1) == "2021-07-14 15:20:21,542"
+    assert matches.group(2) == "finished"
+    assert matches.group(3) == "16 m 5 s 163 ms"
+
+def test_task_matcher():
+    line = "2021-07-14 16:50:59,433 [6804663]   INFO - ild.invoker.GradleBuildInvoker - About to execute Gradle tasks: [clean]\n"
+    regex = re.compile(buildstats.gradle_task_pattern)
+    matches = regex.match(line)
+    assert matches.group(1) == "clean"
+
+def test_task_matcher_multiple_tasks():
+    line = "2021-07-14 16:50:59,433 [6804663]   INFO - ild.invoker.GradleBuildInvoker - About to execute Gradle tasks: [:assemble, :testClasses]\n"
+    regex = re.compile(buildstats.gradle_task_pattern)
+    matches = regex.match(line)
+    assert matches.group(1) == ":assemble, :testClasses"
 
 def hid_test_filter_clean_builds():
     text = """\
