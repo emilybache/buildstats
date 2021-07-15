@@ -6,7 +6,6 @@ from buildstats import filter_gradle_builds, Build
 
 def test_filter_gradle_builds():
     text = """\
-2021-07-14 15:04:16,263 [ 401493]   INFO - ild.invoker.GradleBuildInvoker - About to execute Gradle tasks: [:assemble, :testClasses] 
 2021-07-14 15:08:52,831 [ 678061]   INFO - g.FileBasedIndexProjectHandler - Reindexing refreshed files: 0 to update, calculated in 0ms 
 2021-07-14 15:20:21,542 [1366772]   INFO - ild.invoker.GradleBuildInvoker - Gradle build finished in 16 m 5 s 163 ms 
     at com.intellij.openapi.application.impl.ApplicationImpl.runIntendedWriteActionOnCurrentThread(ApplicationImpl.java:808)
@@ -15,7 +14,7 @@ def test_filter_gradle_builds():
 
     assert list(builds) == [
         Build(when="2021-07-14 15:20:21,542", time_taken="16 m 5 s 163 ms ", outcome="finished",
-              tasks=":assemble, :testClasses")]
+              tasks="")]
 
 
 def test_build_matcher():
