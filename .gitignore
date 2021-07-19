@@ -74,3 +74,5 @@ target/
 venv
 
 .idea
+data
+
