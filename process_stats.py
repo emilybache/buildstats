@@ -1,25 +1,66 @@
-from datetime import timedelta
+import os
+import statistics
 
-def parse_to_secs(raw_time):
-	secs = 0
-	mins = 0
-	hours = 0
-	fields = [x.strip() for x in raw_time.strip().split()]
-	if fields and fields[-1] == 'ms':
-		fields = fields[:-2] # ignore ms fields
-	if fields and fields[-1] == 's':
-		secs = int(fields[-2])
-		fields = fields[:-2]
-	if fields and fields[-1] == 'm':
-		mins = int(fields[-2])
-		fields = fields[:-2]
-	if fields and fields[-1] == 'h':
-		hours = int(fields[-2])
-	t = timedelta(hours=hours, minutes=mins, seconds=secs)
-	return t.total_seconds()
+from typing import List
+
+from buildstats import Build
 
 
 def total_time(builds):
-	all_times = (parse_to_secs(b.time_taken) for b in builds)
-	return sum(all_times)
+    all_times = (b.time_taken_in_seconds() for b in builds)
+    return sum(all_times)
+
+
+def total_time_excluding_clean(builds):
+    all_times = (b.time_taken_in_seconds() for b in builds if b.tasks != 'clean')
+    return sum(all_times)
+
+
+def total_build_count(builds):
+    return len(builds)
+
+
+def total_build_count_excluding_clean(builds):
+    return len([b for b in builds if b.tasks != 'clean'])
+
+
+def median_build_time(builds):
+    all_times = (b.time_taken_in_seconds() for b in builds)
+    return statistics.median(all_times)
+
+
+def median_build_time_excluding_clean(builds):
+    all_times = (b.time_taken_in_seconds() for b in builds if b.tasks != 'clean')
+    return statistics.median(all_times)
+
+
+def deduplicate(builds: List[Build]):
+    return list(set(builds))
+
+
+def remove_clean_builds(builds):
+    return (b for b in builds if b.tasks != 'clean')
+
+
+def gather_builds_from(f):
+    all_builds = []
+    for line in f:
+        try:
+            b = eval(line)
+            all_builds.append(b)
+        except NameError as e:
+            pass
+    return all_builds
+
+
+def gather_builds(folder, output_csv):
+    for root, directories, files in os.walk(folder):
+        for file in files:
+            if file.endswith(".log"):
+                with open(os.path.join(root, file)) as log_file:
+                    builds = gather_builds_from(log_file)
+                    builds = deduplicate(builds)
+                    for build in sorted(builds):
+                        output_csv.write(build.to_csv())
+                        output_csv.write("\n")
 

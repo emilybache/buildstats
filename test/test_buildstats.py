@@ -69,12 +69,6 @@ def test_filter_clean_builds():
         Build(when="2021-07-14 16:50:59,667", time_taken="214 ms ", outcome="finished", tasks="clean")]
 
 
-def test_task_list():
-    assert buildstats.task_list("clean") == ["clean"]
-    assert buildstats.task_list("") == []
-    assert buildstats.task_list((":assemble, :testClasses")) == [":assemble", ":testClasses"]
-
-
 def test_parse():
     assert Build(when="2021-07-14 16:50:59,667", time_taken="214 ms ", outcome="finished", tasks="clean") == eval(
         """Build(when="2021-07-14 16:50:59,667", time_taken="214 ms ", outcome="finished", tasks="clean")""")
@@ -94,3 +88,12 @@ def test_output_to_file():
     output = StringIO()
     buildstats.parse_builds(StringIO(text), output)
     assert output.getvalue() == f"""{Build(when="2021-07-14 15:20:21,542", time_taken="16 m 5 s 163 ms ", outcome="finished", tasks="")}\n"""
+
+def test_to_csv():
+    build = Build(when='2021-07-15 16:37:12,979', time_taken='3 m 28 s 451 ms ', outcome='finished', tasks='clean')
+    assert str(build.to_csv()) == """2021-07-15 16:37:12,979, 208.451, finished, clean"""
+
+def test_parse_to_secs():
+    assert buildstats.parse_to_secs('252 ms ') == 0.252
+    assert buildstats.parse_to_secs('17 s 252 ms ') == 17.252
+    assert buildstats.parse_to_secs('2 m 17 s 252 ms ') == 137.252

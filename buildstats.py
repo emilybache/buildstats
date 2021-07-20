@@ -8,13 +8,41 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 
-@dataclass
+@dataclass(frozen=True, order=True)
 class Build:
-    """Contains the raw data from the log parsed into string fields, no further processing"""
+    """Contains the raw data from the log parsed into string fields,
+    with methods to extract the processed data in more convenient formats"""
     when: str
     time_taken: str
     outcome: str
     tasks: str
+
+    def to_csv(self):
+        return f"{self.when}, {self.time_taken_in_seconds()}, {self.outcome}, {self.tasks}"
+
+    def time_taken_in_seconds(self):
+        return parse_to_secs(self.time_taken)
+
+
+def parse_to_secs(raw_time):
+    ms = 0
+    secs = 0
+    mins = 0
+    hours = 0
+    fields = [x.strip() for x in raw_time.strip().split()]
+    if fields and fields[-1] == 'ms':
+        ms = int(fields[-2])
+        fields = fields[:-2]
+    if fields and fields[-1] == 's':
+        secs = int(fields[-2])
+        fields = fields[:-2]
+    if fields and fields[-1] == 'm':
+        mins = int(fields[-2])
+        fields = fields[:-2]
+    if fields and fields[-1] == 'h':
+        hours = int(fields[-2])
+    t = datetime.timedelta(hours=hours, minutes=mins, seconds=secs, milliseconds=ms)
+    return t.total_seconds()
 
 
 @dataclass
@@ -33,13 +61,6 @@ def next_match(lines, regexes):
             match = named_regex.regex.match(line)
             if match:
                 yield named_regex.name, match
-
-
-def task_list(tasks):
-    tasks = tasks.split(", ")
-    if tasks == [""]:
-        return []
-    return tasks
 
 
 def next_build(matches):
