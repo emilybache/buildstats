@@ -10,8 +10,8 @@ from pathlib import Path
 
 @dataclass(frozen=True, order=True)
 class Build:
-    """Contains the raw data from the log parsed into string fields,
-    with methods to extract the processed data in more convenient formats"""
+    """Contains the raw test_data from the log parsed into string fields,
+    with methods to extract the processed test_data in more convenient formats"""
     when: str
     time_taken: str
     outcome: str
@@ -93,9 +93,9 @@ def parse_builds(idea_log, output):
         output.write(f"{build}\n")
 
 
-def main(log_file, output_filename):
+def parse_idea_log(log_file, output_filename):
     with open(log_file) as f:
-        with open(output_filename, "w") as output_file:
+        with open(output_filename, "a") as output_file:
             parse_builds(f, output_file)
 
 
@@ -110,15 +110,29 @@ def guess_path_to_idea_log():
     return None
 
 
-if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        path = sys.argv[1]
+def main(args):
+    """
+    Process the file created by the IDE into a log of builds,
+    which it will put in the folder 'data'.
+    By default it will look for the idea.log file in the default places for Android Studio versions 4.2 and 4.1.
+    Pass an argument to look in a different place instead
+    """
+    if args:
+        path = args[0]
     else:
         path = guess_path_to_idea_log()
     if not path:
-        print("unable to locate 'idea.log'! You can find it in your JetBrains IDE on the 'help' menu - 'Show log in Finder'. You should give the full path to idea.log as an argument to this script.")
-        sys.exit(1)
-    else:
-        output = output_filename()
-        print(f"Will parse log file {path} and write builds to {output}")
-        main(path, output)
+        print(
+            "unable to locate 'idea.log'! You can find it in your JetBrains IDE on the 'help' menu - 'Show log in Finder'. You should give the full path to idea.log as an argument to this script.")
+        return
+
+    data_folder = Path.cwd() / "data"
+    if not data_folder.exists():
+        os.mkdir(data_folder)
+    output = data_folder / output_filename()
+    print(f"Will parse log file {path} and write builds to {output}")
+    parse_idea_log(path, output)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1:])

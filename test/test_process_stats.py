@@ -59,7 +59,7 @@ Build(when='2021-07-16 14:05:23,407', time_taken='31 s 669 ms ', outcome='finish
 
 
 def test_gather_builds():
-    folder = "data"
+    folder = "test_data"
     output = StringIO()
     gather_builds(folder, output)
     verify(output.getvalue())

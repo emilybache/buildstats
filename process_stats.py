@@ -1,5 +1,10 @@
+#!/usr/bin/env python3
+
 import os
 import statistics
+import sys
+import datetime
+from pathlib import Path
 
 from typing import List
 
@@ -54,13 +59,43 @@ def gather_builds_from(f):
 
 
 def gather_builds(folder, output_csv):
+    all_builds = []
     for root, directories, files in os.walk(folder):
         for file in files:
             if file.endswith(".log"):
                 with open(os.path.join(root, file)) as log_file:
                     builds = gather_builds_from(log_file)
                     builds = deduplicate(builds)
-                    for build in sorted(builds):
-                        output_csv.write(build.to_csv())
-                        output_csv.write("\n")
+                    all_builds.extend(builds)
+    for build in sorted(all_builds):
+        output_csv.write(build.to_csv())
+        output_csv.write("\n")
 
+
+def output_filename(user=None, date=None):
+    user = user or os.getlogin()
+    date = date or datetime.date.today()
+    return f"{date.isoformat()}-{user}.csv"
+
+
+def main(args):
+    """Process the log files created by the 'buildstats' script into a csv file,
+    which it will put in the folder 'processed_data'.
+    By default it will look for the log files in the folder 'data'.
+    Pass an argument to look in a different folder instead"""
+    if args:
+        folder = args[0]
+    else:
+        folder = Path.cwd() / "data"
+    processed_data_folder = Path.cwd() / "processed_data"
+    if not processed_data_folder.exists():
+        os.mkdir(processed_data_folder)
+    output_path = processed_data_folder / output_filename()
+    print(f"Will parse log files found under {folder} and write a csv file to {processed_data_folder}")
+    with open(output_path, "w") as f:
+        gather_builds(folder, f)
+
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
