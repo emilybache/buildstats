@@ -8,7 +8,7 @@ from pathlib import Path
 
 from typing import List
 
-from buildstats import Build
+from buildstats import Build, Sync
 
 
 def total_time(builds):
@@ -39,7 +39,7 @@ def median_build_time_excluding_clean(builds):
     return statistics.median(all_times)
 
 
-def deduplicate(builds: List[Build]):
+def deduplicate(builds):
     return list(set(builds))
 
 
@@ -54,7 +54,7 @@ def gather_builds_from(f):
             b = eval(line)
             all_builds.append(b)
         except NameError as e:
-            pass
+            print("Error gathering builds: ", e)
     return all_builds
 
 
@@ -67,7 +67,7 @@ def gather_builds(folder, output_csv):
                     builds = gather_builds_from(log_file)
                     builds = deduplicate(builds)
                     all_builds.extend(builds)
-    for build in sorted(all_builds):
+    for build in sorted(all_builds, key=lambda x: x.when):
         output_csv.write(build.to_csv())
         output_csv.write("\n")
 
@@ -81,12 +81,12 @@ def output_filename(user=None, date=None):
 def main(args):
     """Process the log files created by the 'buildstats' script into a csv file,
     which it will put in the folder 'processed_data'.
-    By default it will look for the log files in the folder 'testdata'.
+    By default it will look for the log files in the folder 'data'.
     Pass an argument to look in a different folder instead"""
     if args:
         folder = args[0]
     else:
-        folder = Path.cwd() / "testdata"
+        folder = Path.cwd() / "data"
     processed_data_folder = Path.cwd() / "processed_data"
     if not processed_data_folder.exists():
         os.mkdir(processed_data_folder)
@@ -94,7 +94,6 @@ def main(args):
     print(f"Will parse log files found under {folder} and write a csv file to {processed_data_folder}")
     with open(output_path, "w") as f:
         gather_builds(folder, f)
-
 
 
 if __name__ == "__main__":

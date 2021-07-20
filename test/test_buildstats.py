@@ -2,7 +2,7 @@ import datetime
 from io import StringIO
 
 import buildstats
-from buildstats import filter_gradle_builds, Build, output_filename
+from buildstats import filter_gradle_builds, Build, Sync, output_filename
 
 
 def test_filter_gradle_builds():
@@ -51,7 +51,7 @@ def test_next_match():
     assert matches.__next__()[0] == "build"
 
 
-def test_filter_clean_builds():
+def test_filter_gradle_builds():
     text = """\
 2021-07-14 16:50:59,433 [6804663]   INFO - ild.invoker.GradleBuildInvoker - About to execute Gradle tasks: [clean] 
 2021-07-14 16:50:59,439 [6804669]   INFO - ild.invoker.GradleBuildInvoker - About to execute Gradle tasks: [clean] 
@@ -89,11 +89,39 @@ def test_output_to_file():
     buildstats.parse_builds(StringIO(text), output)
     assert output.getvalue() == f"""{Build(when="2021-07-14 15:20:21,542", time_taken="16 m 5 s 163 ms ", outcome="finished", tasks="")}\n"""
 
+
 def test_to_csv():
     build = Build(when='2021-07-15 16:37:12,979', time_taken='3 m 28 s 451 ms ', outcome='finished', tasks='clean')
     assert str(build.to_csv()) == """2021-07-15 16:37:12,979, 208.451, finished, clean"""
+
 
 def test_parse_to_secs():
     assert buildstats.parse_to_secs('252 ms ') == 0.252
     assert buildstats.parse_to_secs('17 s 252 ms ') == 17.252
     assert buildstats.parse_to_secs('2 m 17 s 252 ms ') == 137.252
+
+
+def test_filter_sync_events():
+    text = """\
+2021-07-13 13:46:35,105 [14005541]   INFO - e.project.sync.GradleSyncState - Started single-variant sync with Gradle for project 'acme-project'. 
+2021-07-14 09:02:55,180 [  32416]   INFO - idGradleProjectStartupActivity - Requesting Gradle sync (Cannot find any of:
+2021-07-13 13:51:14,719 [14285155]   INFO - e.project.sync.GradleSyncState - Gradle sync finished in 4 m 39 s 614 ms 
+"""
+    syncs = filter_gradle_builds(StringIO(text))
+
+    assert list(syncs) == [
+        Sync(when="2021-07-13 13:51:14,719", time_taken="4 m 39 s 614 ms ", outcome="finished", project="acme-project")]
+
+
+def test_sync_matcher():
+    line = "2021-07-13 13:51:14,719 [14285155]   INFO - e.project.sync.GradleSyncState - Gradle sync finished in 4 m 39 s 614 ms \n"
+    matches = buildstats.GRADLE_SYNC_RE.match(line)
+    assert matches.group(1) == "2021-07-13 13:51:14,719"
+    assert matches.group(2) == "finished"
+    assert matches.group(3) == "4 m 39 s 614 ms "
+
+
+def test_sync_project_matcher():
+    line = "2021-07-13 13:46:35,105 [14005541]   INFO - e.project.sync.GradleSyncState - Started single-variant sync with Gradle for project 'acme-project'.\n"
+    matches = buildstats.GRADLE_SYNC_START.match(line)
+    assert matches.group(1) == 'acme-project'
