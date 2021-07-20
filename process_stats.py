@@ -81,12 +81,12 @@ def output_filename(user=None, date=None):
 def main(args):
     """Process the log files created by the 'buildstats' script into a csv file,
     which it will put in the folder 'processed_data'.
-    By default it will look for the log files in the folder 'data'.
+    By default it will look for the log files in the folder 'testdata'.
     Pass an argument to look in a different folder instead"""
     if args:
         folder = args[0]
     else:
-        folder = Path.cwd() / "data"
+        folder = Path.cwd() / "testdata"
     processed_data_folder = Path.cwd() / "processed_data"
     if not processed_data_folder.exists():
         os.mkdir(processed_data_folder)
