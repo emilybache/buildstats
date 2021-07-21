@@ -23,6 +23,12 @@ class Build:
     def time_taken_in_seconds(self):
         return parse_to_secs(self.time_taken)
 
+    def is_a_clean(self):
+        return self.tasks == 'clean'
+
+    def is_a_sync(self):
+        return False
+
 
 @dataclass(frozen=True, order=True)
 class Sync:
@@ -39,6 +45,11 @@ class Sync:
     def time_taken_in_seconds(self):
         return parse_to_secs(self.time_taken)
 
+    def is_a_clean(self):
+        return False
+
+    def is_a_sync(self):
+        return True
 
 def parse_to_secs(raw_time):
     ms = 0

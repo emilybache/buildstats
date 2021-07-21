@@ -92,7 +92,7 @@ def test_output_to_file():
 
 def test_to_csv():
     build = Build(when='2021-07-15 16:37:12,979', time_taken='3 m 28 s 451 ms ', outcome='finished', tasks='clean')
-    assert str(build.to_csv()) == """2021-07-15 16:37:12,979, 208.451, finished, clean"""
+    assert str(build.to_csv()) == """2021-07-15 16:37:12,979, Build, 208.451, finished, clean"""
 
 
 def test_parse_to_secs():

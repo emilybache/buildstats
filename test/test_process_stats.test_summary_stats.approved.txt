@@ -1,0 +1,18 @@
+
+Builds (excluding 'clean')
+----------------------------------
+Total number: 5
+Total time: 9 m 54 s 919 ms
+Median time: 2 m 17 s 252 ms
+
+Syncs
+------
+Total number: 2
+Total time: 9 m 2 s 391 ms
+Median time: 4 m 31 s 195 ms
+
+All builds and syncs
+--------------------
+Total number: 8
+Total time: 22 m 25 s 761 ms
+Median time: 2 m 22 s 428 ms

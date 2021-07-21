@@ -1,6 +1,6 @@
-2021-07-15 12:31:45,195, 142.428, finished, :app:assembleAcmeEuDebug
-2021-07-15 13:33:31,933, 137.252, finished, :app:assembleAcmeEuDebug
-2021-07-16 12:31:45,195, 142.428, finished, :app:assemble
-2021-07-16 13:33:31,933, 137.252, finished, :app:assemble
-2021-07-16 13:58:29,316, 35.559, finished, :gmode:generateAcmeEuDebugSources, :gmode:createMockableJar, :gmode:generateAcmeEuDebugAndroidTestSources, :gmode:compileAcmeEuDebugUnitTestSources, :gmode:compileAcmeEuDebugAndroidTestSources, :gmode:compileAcmeEuDebugSources
-2021-07-16 16:37:12,979, 208.451, finished, clean
+2021-07-15 12:31:45,195, Build, 142.428, finished, :app:assembleAcmeEuDebug
+2021-07-15 13:33:31,933, Build, 137.252, finished, :app:assembleAcmeEuDebug
+2021-07-16 12:31:45,195, Build, 142.428, finished, :app:assemble
+2021-07-16 13:33:31,933, Build, 137.252, finished, :app:assemble
+2021-07-16 13:58:29,316, Build, 35.559, finished, :gmode:generateAcmeEuDebugSources, :gmode:createMockableJar, :gmode:generateAcmeEuDebugAndroidTestSources, :gmode:compileAcmeEuDebugUnitTestSources, :gmode:compileAcmeEuDebugAndroidTestSources, :gmode:compileAcmeEuDebugSources
+2021-07-16 16:37:12,979, Build, 208.451, finished, clean
