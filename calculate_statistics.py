@@ -12,12 +12,16 @@ def total_build_count(builds):
 
 
 def median_time(builds):
-    all_times = (b.time_taken_in_seconds() for b in builds)
+    all_times = [b.time_taken_in_seconds() for b in builds]
+    if not all_times:
+        return None
     median_time = statistics.median(all_times)
     return median_time
 
 
 def pretty_print_timedelta(seconds):
+    if not seconds:
+        return ""
     days, seconds = divmod(seconds, 86400)
     hours, seconds = divmod(seconds, 3600)
     minutes, seconds = divmod(seconds, 60)

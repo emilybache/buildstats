@@ -17,6 +17,7 @@ def test_total_build_count():
 
 def test_median_time():
     assert median_time(SAMPLE_BUILDS) == pytest.approx(139.84, 0.1)
+    assert median_time([]) is None
 
 
 def test_summary_stats():
@@ -32,3 +33,4 @@ def test_pretty_print_timedelta():
     build = Build(when='2021-07-16 12:31:45,195', time_taken='428 ms ', outcome='finished',
                   tasks=':app:assemble')
     assert pretty_print_timedelta(build.time_taken_in_seconds()) == '428 ms'
+    assert pretty_print_timedelta(None) == ""
