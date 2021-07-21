@@ -13,12 +13,12 @@ the current working directory then this is the workflow:
 
 Run this as often as you restart your IDE, perhaps twice a day:
 
-    $ buildstats.py
+    $ gather_build_data.py
 
 That should produce a new log file under a subfolder 'data' named with today's date and your username.
 Once a week, process all the statistics into a csv file you can share with your team:
 
-    $ process_stats.py
+    $ process_to_csv.py
 
 It should produce a new csv file under a subfolder 'processed_data' named with today's date and your username.
 Send the csv file to whoever on your team is collating this data for further analysis. 
@@ -26,7 +26,7 @@ Then you should clean up the processed log files so they won't be processed agai
 
     $ clean.py
 
-If your idea.log is not in the standard place, you can tell buildstats.py where to find it:
+If your idea.log is not in the standard place, you can tell gather_build_data.py where to find it:
 
     $ buildstats.py /path/to/idea.log
 
