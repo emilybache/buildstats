@@ -78,11 +78,11 @@ class NamedRegex:
     name: str
 
 
-GRADLE_BUILD_RE = re.compile(r"^([\d\-:,\s]+) \[\d+\].* Gradle build (\w+) in ([\d\s\w]+)\n$")
-GRADLE_TASKS_RE = re.compile(r"^.* About to execute Gradle tasks: \[([\w\s,:-]+)\].*$")
+GRADLE_BUILD_START = re.compile(r"^.* About to execute Gradle tasks: \[([\w\s,:-]+)\].*$")
+GRADLE_BUILD_END = re.compile(r"^([\d\-:,\s]+) \[\d+\].* Gradle build (\w+) in ([\d\s\w]+)\n$")
 
 GRADLE_SYNC_START = re.compile(r"^.* sync with Gradle for project \'([^']+)\'.*$")
-GRADLE_SYNC_RE = re.compile(r"^([\d\-:,\s]+) \[\d+\].* Gradle sync (\w+) in ([\d\s\w]+)\n$")
+GRADLE_SYNC_END = re.compile(r"^([\d\-:,\s]+) \[\d+\].* Gradle sync (\w+) in ([\d\s\w]+)\n$")
 
 
 def next_match(lines, regexes):
@@ -117,10 +117,10 @@ def next_build(matches):
 
 def filter_gradle_builds(lines):
     matches = next_match(lines, [
-        NamedRegex(GRADLE_BUILD_RE, "build"),
-        NamedRegex(GRADLE_TASKS_RE, "tasks"),
+        NamedRegex(GRADLE_BUILD_END, "build"),
+        NamedRegex(GRADLE_BUILD_START, "tasks"),
         NamedRegex(GRADLE_SYNC_START, "sync_start"),
-        NamedRegex(GRADLE_SYNC_RE, "sync_end"),
+        NamedRegex(GRADLE_SYNC_END, "sync_end"),
     ])
     builds = (build for build in next_build(matches))
     return builds

@@ -20,7 +20,7 @@ def test_filter_gradle_builds():
 
 def test_build_matcher():
     line = "2021-07-14 15:20:21,542 [1366772]   INFO - ild.invoker.GradleBuildInvoker - Gradle build finished in 16 m 5 s 163 ms\n"
-    matches = gather_build_data.GRADLE_BUILD_RE.match(line)
+    matches = gather_build_data.GRADLE_BUILD_END.match(line)
     assert matches.group(1) == "2021-07-14 15:20:21,542"
     assert matches.group(2) == "finished"
     assert matches.group(3) == "16 m 5 s 163 ms"
@@ -28,13 +28,13 @@ def test_build_matcher():
 
 def test_task_matcher():
     line = "2021-07-14 16:50:59,433 [6804663]   INFO - ild.invoker.GradleBuildInvoker - About to execute Gradle tasks: [clean]\n"
-    matches = gather_build_data.GRADLE_TASKS_RE.match(line)
+    matches = gather_build_data.GRADLE_BUILD_START.match(line)
     assert matches.group(1) == "clean"
 
 
 def test_task_matcher_multiple_tasks():
     line = "2021-07-14 16:50:59,433 [6804663]   INFO - ild.invoker.GradleBuildInvoker - About to execute Gradle tasks: [:assemble-xyz, :testClasses]\n"
-    matches = gather_build_data.GRADLE_TASKS_RE.match(line)
+    matches = gather_build_data.GRADLE_BUILD_START.match(line)
     assert matches.group(1) == ":assemble-xyz, :testClasses"
 
 
@@ -44,8 +44,8 @@ def test_next_match():
 2021-07-14 16:50:59,667 [6804897]   INFO - ild.invoker.GradleBuildInvoker - Gradle build finished in 214 ms
 """
     matches = gather_build_data.next_match(StringIO(text),
-                                           [gather_build_data.NamedRegex(gather_build_data.GRADLE_BUILD_RE, "build"),
-                                            gather_build_data.NamedRegex(gather_build_data.GRADLE_TASKS_RE, "tasks")]
+                                           [gather_build_data.NamedRegex(gather_build_data.GRADLE_BUILD_END, "build"),
+                                            gather_build_data.NamedRegex(gather_build_data.GRADLE_BUILD_START, "tasks")]
                                            )
     assert matches.__next__()[0] == "tasks"
     assert matches.__next__()[0] == "build"
@@ -115,7 +115,7 @@ def test_filter_sync_events():
 
 def test_sync_matcher():
     line = "2021-07-13 13:51:14,719 [14285155]   INFO - e.project.sync.GradleSyncState - Gradle sync finished in 4 m 39 s 614 ms \n"
-    matches = gather_build_data.GRADLE_SYNC_RE.match(line)
+    matches = gather_build_data.GRADLE_SYNC_END.match(line)
     assert matches.group(1) == "2021-07-13 13:51:14,719"
     assert matches.group(2) == "finished"
     assert matches.group(3) == "4 m 39 s 614 ms "
