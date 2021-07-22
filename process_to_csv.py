@@ -67,6 +67,8 @@ def main(args):
     stats = summary_statistics(builds)
     sys.stdout.write(stats)
 
+    print(f"\nPlease share this file with your colleagues now:\n\n{output_path}")
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])
