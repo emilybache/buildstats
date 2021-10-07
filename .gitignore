@@ -76,4 +76,4 @@ venv
 .idea
 processed_data
 data
-
+logs

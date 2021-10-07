@@ -4,6 +4,7 @@ import datetime
 import os
 import re
 import sys
+import pwd
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -125,9 +126,11 @@ def filter_gradle_builds(lines):
     builds = (build for build in next_build(matches))
     return builds
 
+def get_username():
+    return pwd.getpwuid( os.getuid() )[ 0 ]
 
 def output_filename(user=None, date=None):
-    user = user or os.getlogin()
+    user = user or get_username()
     date = date or datetime.date.today()
     return f"{date.isoformat()}-{user}.log"
 
@@ -162,6 +165,9 @@ def main(args):
     Pass an argument to look in a different place instead
     """
     if args:
+        if "--help" in args:
+            print("This script takes one argument: the log file to parse.")
+            return
         path = args[0]
     else:
         path = guess_path_to_idea_log()

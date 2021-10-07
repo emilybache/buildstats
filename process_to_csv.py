@@ -4,7 +4,7 @@ import sys
 import datetime
 from pathlib import Path
 
-from gather_build_data import Build, Sync
+from gather_build_data import Build, Sync, get_username
 
 from calculate_statistics import summary_statistics
 
@@ -42,7 +42,7 @@ def gather_builds(folder, output_csv):
 
 
 def output_filename(user=None, date=None):
-    user = user or os.getlogin()
+    user = user or get_username()
     date = date or datetime.date.today()
     return f"{date.isoformat()}-{user}.csv"
 
