@@ -1,0 +1,1 @@
+Will parse log file idea.log and write builds to /home/ec2-user/.texttest/tmp/bs.07Oct063524.6469/bs/smoke/data/2021-10-07-ec2-user.log

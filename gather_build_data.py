@@ -148,6 +148,7 @@ def parse_idea_log(log_file, output_filename):
 
 def guess_path_to_idea_log():
     possible_paths = [
+        Path("idea.log"),
         Path.home() / "Library/Logs/Google/AndroidStudio4.2/idea.log",
         Path.home() / "Library/Logs/Google/AndroidStudio4.1/idea.log",
     ]
